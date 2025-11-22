@@ -1,0 +1,52 @@
+[
+    {
+        "sku": "4900124",
+        "name": "RCM BUNDLE T3 F&P 6PK",
+        "products": [
+            {
+                "sku": "21005",
+                "name": "Ready For My Cameo",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/22257-RCM-FP-CORE-21005-ReadyForMyCameo.jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP_RS19-21005-ReadyForMyCameo.jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/22257-RCM-FP-CORE-21005-ReadyForMyCameo-Swatch.jpg"
+            },
+            {
+                "atOrigin": true,
+                "sku": "20777",
+                "name": "Altinude",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/22257-RCM-FP-CORE-20777-AltiNUDE.jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/17353-RCM-20777-AltiNUDE-Light.jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/22257-RCM-FP-CORE-20777-AltiNUDE-Swatch.jpg"
+            },
+            {
+                "atOrigin": true,
+                "sku": "21228",
+                "name": "Ahead Of The Game",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP-22-21228-AHEADOFTHEGAME-Bottle(2).jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/17353-RCM-21228-AHEADOFTHEGAME-Light.jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP-22-21228-AHEADOFTHEGAME(2).jpg"
+            },
+            {
+                "sku": "21138",
+                "name": "Color Me Fabulous",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP-21-RESET-21138-ColorMeFabulous-Bottle(2).jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP-21-RESET-21138-ColorMeFabulous-Hand(2).jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP-21-RESET-21138-ColorMeFabulous(2).jpg"
+            },
+            {
+                "sku": "21010",
+                "name": "Behind The Camera",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP_RS19-21010-BehindTheCamera-Bottle.jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP_RS19-21010-BehindTheCamera.jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-SP_RS19-21010-BehindTheCamera-Swatch.jpg"
+            },
+            {
+                "sku": "21073",
+                "name": "Parisian Dreaming",
+                "bottle":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-FL-20-21073-PARISIANDREAMING-BOTTLE.jpg",
+                "hand":     "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-FL-20-21073-ParisianDreaming-Hand.jpg",
+                "swatch":   "/Volumes/CreativeServer2/HM-Nail Alliance Jobs/22637-NAL-CORE-Amazon-Web-Image-Consolidation-Website-Misc/Collected Finals/RCM-TEMU/4900124/source/RCM-FL-20-21073-PARISIANDREAMING-SWATCH.jpg"
+            }
+        ]
+    }
+]
