@@ -11,6 +11,8 @@ class BottlesBundle
     private float $gapYPercent = 0.07;
     private int $maxBottlesPerRow = 6;
 
+    private array $bottlesImages = [];
+
     public function __construct(
         private Image $image,
         private Bottles $bottles
@@ -65,6 +67,20 @@ class BottlesBundle
         $bottleWidth = $maxWidthByX;
         $bottleHeight = $maxHeightByY;
 
+        $loadedBottleMaxHeight = 0;
+        $loadedBottleMaxWidth = 0;
+
+        // Load bottles to get correct dimensions
+        for ($i = 0; $i < $this->bottles->getCount(); $i++)
+        {
+            $this->bottlesImages[] = $this->bottles->loadBottle($i, $bottleWidth, $bottleHeight);
+            $loadedBottleMaxHeight = max($loadedBottleMaxHeight, $this->bottlesImages[$i]->getImageHeight());
+            $loadedBottleMaxWidth = max($loadedBottleMaxWidth, $this->bottlesImages[$i]->getImageWidth());
+        }
+
+        $bottleWidth = $loadedBottleMaxWidth;
+        $bottleHeight = $loadedBottleMaxHeight;
+
         $gapX = $bottleWidth * $this->gapXPercent;
         $gapY = $bottleHeight * $this->gapYPercent;
 
@@ -84,7 +100,7 @@ class BottlesBundle
                 $x = $rowOffsetX + ($i * ($bottleWidth + $gapX));
                 $y = $currentY;
 
-                $bottle = $this->bottles->loadBottle($bottleIndex++, $bottleWidth, $bottleHeight);
+                $bottle = $this->bottlesImages[$bottleIndex++];
 
                 $this->image->compositeImage($bottle, Imagick::COMPOSITE_DEFAULT, $x, $y);
             }

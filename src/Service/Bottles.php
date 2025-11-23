@@ -54,10 +54,8 @@ class Bottles implements Asset
             if ($this->cmykProfile && $this->srgbProfile) {
                 $bottle->profileImage('icc', $this->cmykProfile);
                 $bottle->profileImage('icc', $this->srgbProfile);
-                echo "profiled";
             } else {
                 $bottle->transformImageColorspace(Imagick::COLORSPACE_SRGB);
-                echo "fake profile";
             }
         }
 

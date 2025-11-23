@@ -36,6 +36,12 @@ class CreateBottleBundleCommand extends Command
             "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
             "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
             "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
+            "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
+            "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
+            "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
+            // "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
+            // "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
+            // "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
         ];
 
         $image = new Image(2000, 2000);
