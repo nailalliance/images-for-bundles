@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand("create:bottle:bundle")]
-class CreateBottleBundle extends Command
+class CreateBottleBundleCommand extends Command
 {
     public function __construct(private ColorProfiles $colorProfiles)
     {
