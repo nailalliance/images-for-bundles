@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Service\Image;
+use App\Service\ImageLegacy;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,14 +16,14 @@ use function json_decode;
 #[AsCommand("images:create")]
 class CreateImageCommand extends Command
 {
-    public function __construct(private Image $image)
+    public function __construct(private ImageLegacy $image)
     {
         parent::__construct();
     }
 
     protected function configure()
     {
-        $this->addOption("path", null, InputOption::VALUE_REQUIRED, "Image path");
+        $this->addOption("path", null, InputOption::VALUE_REQUIRED, "ImageLegacy path");
         $this->addOption("folder", null, InputOption::VALUE_REQUIRED, "Folder path");
         $this->addOption('swatches', null, InputOption::VALUE_NEGATABLE, "No Swatches", true);
         $this->addOption('bottles', null, InputOption::VALUE_NEGATABLE, "No Swatches", true);
