@@ -10,6 +10,7 @@ use App\Service\Image;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -23,29 +24,36 @@ class CreateGelishDipSwatchCommand extends Command
 
     protected function configure()
     {
-
+        $this->addOption("swatches", "s", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
+        $this->addOption("assets", "a", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
+        $this->addOption("output", "o", InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        $swatchPath = "public/test-images/collection/GELMT-FL-25-20781-05-GIVEMEABUBBLY-FG-SWATCH.jpg";
-        $jarPath = "public/test-images/collection/GELMT-FL-25-20781-1620580-GIVEMEABUBBLY-FG-JAR.jpg";
+        $swatchesPath = $input->getOption("swatches");
+        $jarsPath = $input->getOption("assets");
+        $outputPath = $input->getOption("output");
 
-        $image = new Image(2000, 2000);
+        foreach ($swatchesPath as $key => $swatchPath) {
+            $jarPath = $jarsPath[$key];
 
-        $swatches = new Asset($this->colorProfiles);
-        $swatches->addAsset($swatchPath);
+            $image = new Image(2000, 2000);
 
-        $jars = new Asset($this->colorProfiles);
-        $jars->addAsset($jarPath);
+            $swatches = new Asset($this->colorProfiles);
+            $swatches->addAsset($swatchPath);
 
-        $swatch = new GelishDipSwatch($image, $swatches, $jars);
+            $jars = new Asset($this->colorProfiles);
+            $jars->addAsset($jarPath);
 
-        $swatch->draw();
+            $swatch = new GelishDipSwatch($image, $swatches, $jars);
 
-        $image->saveImage("public/test-images/test".basename($swatchPath).".jpg");
+            $swatch->draw();
+
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . basename($jarPath) . ".jpg");
+        }
 
         return Command::SUCCESS;
     }

@@ -6,9 +6,12 @@ use App\Service\Asset;
 use App\Service\BottlesBundle;
 use App\Service\ColorProfiles;
 use App\Service\Image;
+use DateTime;
+use DateTimeZone;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -22,27 +25,16 @@ class CreateBottleBundleCommand extends Command
 
     protected function configure()
     {
-
+        $this->addOption("assets", "a", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
+        $this->addOption("output", "o", InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        $paths = [
-            "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
-            "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
-            "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
-            // "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
-            // "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
-            // "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
-            // "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
-            // "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
-            // "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
-            // "public/test-images/21859-GEL-1110851-GrandJewels-FG.png",
-            // "public/test-images/22195-GEL-SG-Tips-1148010-TipAdhesive-15ml-FG.jpg",
-            // "public/test-images/22633-Gel-LaLaLoveYou-Bottle-FG.jpg",
-        ];
+        $paths = $input->getOption("assets");
+        $outputPath = $input->getOption("output");
 
         $image = new Image(2000, 2000);
 
@@ -56,7 +48,8 @@ class CreateBottleBundleCommand extends Command
 
         $bundle->draw();
 
-        $image->saveImage("public/test-images/test.jpg");
+        $time = new DateTime("now", new DateTimeZone("America/Los_Angeles"));
+        $image->saveImage($outputPath . DIRECTORY_SEPARATOR . "bottles-" . $time->format('Y-m-d_H-i-s') . ".jpg");
 
         return Command::SUCCESS;
     }

@@ -10,6 +10,7 @@ use App\Service\Image;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -23,23 +24,18 @@ class CreateGelishMtSwatchCommand extends Command
 
     protected function configure()
     {
-
+        $this->addOption("swatches", "s", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
+        $this->addOption("assets", "a", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
+        $this->addOption("output", "o", InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        $swatchesPath = [
-            "public/test-images/collection/GELMT-FL-25-20781-01-NIGHTAFTERNIGHT-FG-SWATCH.jpg",
-            "public/test-images/collection/GELMT-FL-25-20781-05-GIVEMEABUBBLY-FG-SWATCH.jpg",
-            "public/test-images/collection/GELMT-FL-25-20781-06-MOONLITMOMENTS-FG-SWATCH.jpg",
-        ];
-        $bottlePaths = [
-            "public/test-images/collection/GELMT-FL-25-20781-3110576-NIGHTAFTERNIGHT-FG.jpg",
-            "public/test-images/collection/GELMT-FL-25-20781-3110580-GIVEMEABUBBLY-FG.jpg",
-            "public/test-images/collection/GELMT-FL-25-20781-3110581-MOONLITMOMENTS-FG.jpg",
-        ];
+        $swatchesPath = $input->getOption("swatches");
+        $bottlePaths = $input->getOption("assets");
+        $outputPath = $input->getOption("output");
 
         foreach ($swatchesPath as $key => $swatchPath) {
             $bottlePath = $bottlePaths[$key];
@@ -55,9 +51,8 @@ class CreateGelishMtSwatchCommand extends Command
 
             $swatch->draw();
 
-            $image->saveImage("public/test-images/test" . basename($swatchPath) . ".jpg");
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . basename($bottlePath) . ".jpg");
         }
-
 
         return Command::SUCCESS;
     }
