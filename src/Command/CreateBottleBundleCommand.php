@@ -27,6 +27,7 @@ class CreateBottleBundleCommand extends Command
     {
         $this->addOption("assets", "a", InputOption::VALUE_REQUIRED|InputOption::VALUE_IS_ARRAY);
         $this->addOption("output", "o", InputOption::VALUE_REQUIRED);
+        $this->addOption("combined", null, InputOption::VALUE_NEGATABLE, "Bundled", true);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -35,21 +36,38 @@ class CreateBottleBundleCommand extends Command
 
         $paths = $input->getOption("assets");
         $outputPath = $input->getOption("output");
+        $combined = $input->getOption("combined");
 
-        $image = new Image(2000, 2000);
+        if ($combined) {
+            $image = new Image(2000, 2000);
 
-        $bottles = new Asset($this->colorProfiles);
+            $bottles = new Asset($this->colorProfiles);
 
-        foreach($paths as $path) {
-            $bottles->addAsset($path);
+            foreach($paths as $path) {
+                $bottles->addAsset($path);
+            }
+
+            $bundle = new BottlesBundle($image, $bottles);
+
+            $bundle->draw();
+
+            $time = new DateTime("now", new DateTimeZone("America/Los_Angeles"));
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . "bundle-" . $time->format('Y-m-d_H-i-s') . ".jpg");
+            return Command::SUCCESS;
         }
 
-        $bundle = new BottlesBundle($image, $bottles);
+        foreach($paths as $path) {
+            $image = new Image(2000, 2000);
 
-        $bundle->draw();
+            $bottles = new Asset($this->colorProfiles);
+            $bottles->addAsset($path);
 
-        $time = new DateTime("now", new DateTimeZone("America/Los_Angeles"));
-        $image->saveImage($outputPath . DIRECTORY_SEPARATOR . "bottles-" . $time->format('Y-m-d_H-i-s') . ".jpg");
+            $bundle = new BottlesBundle($image, $bottles);
+
+            $bundle->draw();
+
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . basename($path) . ".jpg");
+        }
 
         return Command::SUCCESS;
     }
