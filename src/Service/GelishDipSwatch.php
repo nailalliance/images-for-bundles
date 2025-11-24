@@ -18,7 +18,7 @@ class GelishDipSwatch implements DrawerInterface
 
     public function draw()
     {
-        $description = new Imagick('/Users/fabiannino/Developer/images-for-bundles/public/images/gelish-swatch-dip-info.png');
+        $description = new Imagick(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR .'public/images/gelish-swatch-dip-info.png');
 
         $this->image->addImage($description);
 

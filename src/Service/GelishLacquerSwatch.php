@@ -18,7 +18,7 @@ class GelishLacquerSwatch implements DrawerInterface
 
     public function draw()
     {
-        $description = new Imagick('public/images/gelish-swatch-mt-info.png');
+        $description = new Imagick(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/gelish-swatch-mt-info.png');
 
         $this->image->addImage($description);
 
@@ -34,7 +34,7 @@ class GelishLacquerSwatch implements DrawerInterface
             $this->image->getHeight() * .11
         );
 
-        $handBase = new Imagick('public/images/hand/hand-base.png');
+        $handBase = new Imagick(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/hand-base.png');
         $this->image->compositeImage($handBase, Imagick::COMPOSITE_DEFAULT, 0, 0);
 
         // add the bottle
@@ -51,12 +51,12 @@ class GelishLacquerSwatch implements DrawerInterface
             $bottleY
         );
 
-        $handBase = new Imagick('public/images/hand/hand-fingers.png');
+        $handBase = new Imagick(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/hand-fingers.png');
         $this->image->compositeImage($handBase, Imagick::COMPOSITE_DEFAULT, 0, 0);
 
         // add nails
-        $mask = 'public/images/hand/nailshape-grey.png';
-        $clipper = 'public/images/hand/nailshape.png';
+        $mask = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-grey.png';
+        $clipper = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape.png';
         $texture = $this->swatches->getAssets()[0];
         $masked = (new TexturedImage($texture, $mask, $clipper))->draw()->getResult();
 
