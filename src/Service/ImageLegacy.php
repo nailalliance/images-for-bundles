@@ -294,7 +294,7 @@ class ImageLegacy
         $currentX = $startX;
         $bottleIndex = 0;
 
-        // --- Loop and Place Bottles ---
+        // --- Loop and Place Asset ---
         foreach ($this->bottles as $_bottle) {
             $bottle = $_bottle['image'];
             $new = $_bottle['new'];

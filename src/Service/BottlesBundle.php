@@ -4,7 +4,7 @@ namespace App\Service;
 
 use Imagick;
 
-class BottlesBundle
+class BottlesBundle implements DrawerInterface
 {
     private float $paddingPercent = 0.01;
     private float $gapXPercent = 0.07;
@@ -15,7 +15,7 @@ class BottlesBundle
 
     public function __construct(
         private Image $image,
-        private Bottles $bottles
+        private Asset $bottles
     )
     {}
 
@@ -73,7 +73,7 @@ class BottlesBundle
         // Load bottles to get correct dimensions
         for ($i = 0; $i < $this->bottles->getCount(); $i++)
         {
-            $this->bottlesImages[] = $this->bottles->loadBottle($i, $bottleWidth, $bottleHeight);
+            $this->bottlesImages[] = $this->bottles->loadAsset($i, $bottleWidth, $bottleHeight, true);
             $loadedBottleMaxHeight = max($loadedBottleMaxHeight, $this->bottlesImages[$i]->getImageHeight());
             $loadedBottleMaxWidth = max($loadedBottleMaxWidth, $this->bottlesImages[$i]->getImageWidth());
         }

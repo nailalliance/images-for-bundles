@@ -47,7 +47,7 @@ class CreateImageCommand extends Command
             $fileName = $source['sku'] . "-" . $name;
 
             if ($bottles){
-                $io->title("Bottles");
+                $io->title("Asset");
 
                 $bottle = $this->image->createBase()->initBottles(count($source['products']));
 

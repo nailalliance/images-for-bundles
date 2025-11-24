@@ -37,4 +37,9 @@ class Image
     {
         return $this->imagick->compositeImage($composite_object, $composite, $x, $y, $channel);
     }
+
+    public function addImage(Imagick $source): bool
+    {
+        return $this->imagick->addImage($source);
+    }
 }
