@@ -32,92 +32,118 @@ class TexturedImage
 
     public function draw(): self
     {
-
         try {
-            // Resize texture to match mask if needed
-            // if ($this->texture->getImageWidth() != $this->mask->getImageWidth() ||
-            //     $this->texture->getImageHeight() != $this->mask->getImageHeight()) {
-            //     $this->texture->resizeImage(
-            //         $this->mask->getImageWidth(),
-            //         $this->mask->getImageHeight(),
-            //         Imagick::FILTER_LANCZOS,
-            //         1
-            //     );
-            // }
+            // --- Step 1: Texture Tiling ---
+            $geo = $this->texture->getImageGeometry();
+            $w = $geo['width'];
+            $h = $geo['height'];
 
-            // --- Step 1: The Shading (Hard Light) ---
-            // We blend the mask onto the texture to get the shadows and highlights
+            // Crop Center 40%
+            $cropW = $w * 0.40;
+            $cropH = $h * 0.40;
+            $startX = ($w - $cropW) / 2;
+            $startY = ($h - $cropH) / 2;
+            $this->texture->cropImage($cropW, $cropH, $startX, $startY);
+            $this->texture->setImagePage(0, 0, 0, 0);
 
-            $x = 0; // ($this->texture->getImageWidth() / 2);
-            $y = -1 * ($this->texture->getImageHeight() / 3);
+            // Scale Down (50%)
+            $this->texture->resizeImage($cropW * 0.5, $cropH * 0.5, Imagick::FILTER_LANCZOS, 1);
 
-            $width = $this->mask->getImageWidth();
-            $height = $this->mask->getImageHeight();
-
+            // Tile across mask
+            $maskW = $this->mask->getImageWidth();
+            $maskH = $this->mask->getImageHeight();
             $canvas = new Imagick();
-            $canvas->newImage($width, $height, new ImagickPixel('transparent'));
-
-            $canvas->compositeImage($this->texture, Imagick::COMPOSITE_DEFAULT, $x, $y);
-
+            $canvas->newImage($maskW, $maskH, new ImagickPixel('transparent'));
+            $canvas = $canvas->textureImage($this->texture);
             $this->texture = $canvas;
 
-            $this->texture->compositeImage($this->mask, Imagick::COMPOSITE_HARDLIGHT, 0,0);
+            // --- Step 2: Base Prep ---
+            // Keep base mostly bright (92%)
+            // $this->texture->modulateImage(100, 100, 92);
+            // $this->texture->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
+            // --- Step 2: Adaptive Base Darkening (NEW) ---
 
-            $glareLayter = clone $this->mask;
-            $glareLayter->blackThresholdImage("gray(98%)");
+            // 1. Analyze the brightness of the swatch
+            $stats = clone $this->texture;
+            $stats->scaleImage(1, 1); // Shrink to 1px to get average color
+            $pixel = $stats->getImagePixelColor(0,0);
+            $color = $pixel->getColor();
+            $stats->clear();
+            // Calculate perceived brightness (0.0 to 1.0)
+            $brightness = (($color['r'] * 0.299) + ($color['g'] * 0.587) + ($color['b'] * 0.114)) / 255;
 
-            $this->texture->compositeImage($glareLayter, Imagick::COMPOSITE_SCREEN, 0,0);
+            // Calculate Saturation (Vibrancy)
+            // 0.0 (Grey/White) to 1.0 (Pure Color)
+            $max = max($color['r'], $color['g'], $color['b']);
+            $min = min($color['r'], $color['g'], $color['b']);
+            $chroma = $max - $min;
+            $saturation = ($max == 0) ? 0 : ($chroma / $max);
 
-            // --- Step 2: The Cropping (Clipping) ---
+            $isVibrant = ($saturation > 0.15 || $brightness < 0.2);
 
-            // We need a "Silhoutte" of the mask to cut the shape out.
-            // If we use the shading mask directly, grey shadows might become semi-transparent.
-            // So, we create a temporary "clipper" where anything NOT black becomes pure white.
-            // $clipper = new Imagick('public/images/hand/nailshape.png');
+            if ($isVibrant) {
+                // glitter mode
+                $this->texture->modulateImage(100, 105, 100);
+            } else {
+                // white / cream
+                $target = ($brightness > 0.8) ? 82 : 92;
+                $this->texture->modulateImage(100, 100, $target);
+            }
 
-            // Turn on the alpha channel for the clipper
-            $this->clipper->setImageAlphaChannel(Imagick::ALPHACHANNEL_ACTIVATE);
-
-            // Apply a threshold: Pixels darker than 5% become black, everything else becomes white.
-            // Adjust '5%' if your black background isn't perfectly black.
-            $this->clipper->blackThresholdImage("gray(5%)");
-            // Convert non-black pixels to pure white (creating a solid cookie cutter)
-            $this->clipper->whiteThresholdImage("gray(5%)");
-
-            // $this->clipper->writeImage('/Users/fabiannino/Developer/images-for-bundles/public/test-images/clipper.png');
-
-            // Enable alpha channel on the main texture so it can hold transparency
             $this->texture->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
 
-            // Apply the clipper to the texture's opacity channel
-            // This keeps pixels where the clipper is white, and removes them where it is black.
+            $shadowLayer = clone $this->mask;
+            $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_DEACTIVATE);
+
+            if ($isVibrant)
+            {
+                $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
+                $shadowLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.4, Imagick::CHANNEL_ALPHA);
+
+                $this->texture->compositeImage($shadowLayer, Imagick::COMPOSITE_HARDLIGHT, 0, 0);
+            } else {
+                // Keep Leveling: Cleans the middle of the nail so colors stay true
+                $quantum = $shadowLayer->getQuantumRange();
+                $whitePoint = $quantum['quantumRangeLong'] * 0.55;
+                $shadowLayer->levelImage(0, 1.0, $whitePoint);
+
+                // Shadow Opacity: 0.5 is subtle but visible.
+                $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
+                $shadowLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.6, Imagick::CHANNEL_ALPHA);
+
+                $this->texture->compositeImage($shadowLayer, Imagick::COMPOSITE_MULTIPLY, 0, 0);
+            }
+            $shadowLayer->clear();
+
+
+            // --- Step 4: High Gloss (The "Wet Look") ---
+            $glareLayer = clone $this->mask;
+            $glareLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_DEACTIVATE);
+
+            // 1. TIGHTEN: Increase threshold to 85% (was 60%).
+            // This restricts the glare to just the sharpest reflection line.
+            $glareLayer->blackThresholdImage("gray(85%)");
+
+            // 2. SOFTEN: Reduce opacity to 70% (0.7).
+            // We removed the "1.5x brightness boost".
+            // This makes the glare transparent enough to see the red color underneath.
+            $glareLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
+            $glareLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.7, Imagick::CHANNEL_ALPHA);
+
+            $this->texture->compositeImage($glareLayer, Imagick::COMPOSITE_SCREEN, 0, 0);
+            $glareLayer->clear();
+
+
+            // --- Step 5: Clipping (unchanged) ---
+            $this->clipper->setImageAlphaChannel(Imagick::ALPHACHANNEL_ACTIVATE);
+            $this->clipper->blackThresholdImage("gray(5%)");
+            $this->clipper->whiteThresholdImage("gray(5%)");
             $this->texture->compositeImage($this->clipper, Imagick::COMPOSITE_COPYOPACITY, 0, 0);
 
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            error_log("Nail generation error: " . $e->getMessage());
         }
 
-
-
-        // if ($this->texture->getImageWidth() != $this->mask->getImageWidth() ||
-        //     $this->texture->getImageHeight() != $this->mask->getImageHeight()) {
-        //     $this->texture->resizeImage(
-        //         $this->mask->getImageWidth(),
-        //         $this->mask->getImageHeight(),
-        //         Imagick::FILTER_LANCZOS,
-        //         1
-        //     );
-        // }
-        //
-        // $maskX = -1 * ($this->texture->getImageWidth() / 4);
-        // $maskY = ($this->mask->getImageHeight() / 4);
-        // $this->texture->compositeImage($this->mask, Imagick::COMPOSITE_HARDLIGHT, $maskX, $maskY);
-        //
-        // $glareLayter = clone $this->mask;
-        // $glareLayter->blackThresholdImage("gray(98%)");
-        //
-        // $this->texture->compositeImage($glareLayter, Imagick::COMPOSITE_SCREEN, 0,0);
-        //
         return $this;
     }
 

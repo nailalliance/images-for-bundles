@@ -4,7 +4,7 @@ namespace App\Command;
 
 use App\Service\Asset;
 use App\Service\BottlesBundle;
-use App\Service\ColorProfiles;
+use App\Service\Color;
 use App\Service\GelishDipSwatch;
 use App\Service\Image;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,11 +13,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function preg_replace;
 
 #[AsCommand("create:gelish:dip:swatch")]
 class CreateGelishDipSwatchCommand extends Command
 {
-    public function __construct(private ColorProfiles $colorProfiles)
+    public function __construct(private Color $colorProfiles)
     {
         parent::__construct();
     }
@@ -52,7 +53,9 @@ class CreateGelishDipSwatchCommand extends Command
 
             $swatch->draw();
 
-            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . basename($jarPath) . ".jpg");
+            $basename = preg_replace("/(.jpg)|(.png)/", '', basename($jarPath));
+
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . $basename . "-swatch.jpg");
         }
 
         return Command::SUCCESS;

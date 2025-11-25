@@ -55,7 +55,19 @@ class GelishGelSwatch implements DrawerInterface
         $this->image->compositeImage($handBase, Imagick::COMPOSITE_DEFAULT, 0, 0);
 
         // add nails
-        $mask = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-grey.png';
+        // $swatchColor = Color::getSwatchSolidColor($swatch);
+        // $lightness = $swatchColor->luminosity();
+
+        // $mask = match(true)
+        // {
+        //     $lightness < .25 => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-dark-grey.png',
+        //     $lightness < .50 => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-dark-grey.png',
+        //     $lightness > .95 => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-light-grey.png',
+        //     default => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-med-grey.png',
+        // };
+
+        $mask = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape-med-grey.png';
+
         $clipper = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public/images/hand/nailshape.png';
         $texture = $this->swatches->getAssets()[0];
         $masked = (new TexturedImage($texture, $mask, $clipper))->draw()->getResult();

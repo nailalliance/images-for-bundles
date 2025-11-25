@@ -13,7 +13,7 @@ class Asset
     private $cmykProfile;
     private $srgbProfile;
 
-    public function __construct(ColorProfiles $colorProfile)
+    public function __construct(Color $colorProfile)
     {
         $this->cmykProfile = $colorProfile->getCmykProfile();
         $this->srgbProfile = $colorProfile->getSrgbProfile();

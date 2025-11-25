@@ -4,7 +4,7 @@ namespace App\Command;
 
 use App\Service\Asset;
 use App\Service\BottlesBundle;
-use App\Service\ColorProfiles;
+use App\Service\Color;
 use App\Service\Image;
 use DateTime;
 use DateTimeZone;
@@ -14,11 +14,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function basename;
+use function preg_replace;
 
 #[AsCommand("create:bottle:bundle")]
 class CreateBottleBundleCommand extends Command
 {
-    public function __construct(private ColorProfiles $colorProfiles)
+    public function __construct(private Color $colorProfiles)
     {
         parent::__construct();
     }
@@ -66,7 +68,9 @@ class CreateBottleBundleCommand extends Command
 
             $bundle->draw();
 
-            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . basename($path) . ".jpg");
+            $basename = preg_replace("/(.jpg)|(.png)/", '', basename($path));
+
+            $image->saveImage($outputPath . DIRECTORY_SEPARATOR . $basename . ".jpg");
         }
 
         return Command::SUCCESS;
