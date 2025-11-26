@@ -46,6 +46,25 @@ class TexturedImage
             $this->texture->cropImage($cropW, $cropH, $startX, $startY);
             $this->texture->setImagePage(0, 0, 0, 0);
 
+            // --- TEXTURE DETECTION (The Fix for Pastels) ---
+            // We analyze the graininess (Standard Deviation) of the cropped sample.
+            // Glitters have high variation between pixels. Flat paints have low variation.
+
+            $stats = clone $this->texture;
+            // Convert to grayscale to measure intensity variation only
+            $stats->setImageType(Imagick::IMGTYPE_GRAYSCALE);
+            $statistics = $stats->getImageChannelStatistics();
+            // Get Standard Deviation of the Gray channel
+            $sigma = $statistics[Imagick::CHANNEL_GRAY]['standardDeviation'] ?? 0;
+            $maxQuantum = $stats->getQuantumRange()['quantumRangeLong'];
+            $normalizedSigma = $sigma / $maxQuantum; // Result is 0.0 to 1.0
+            $stats->clear();
+
+            // Threshold:
+            // Flat colors are usually < 0.02 (2% noise).
+            // Glitters/Shimmers are usually > 0.035 (3.5% noise).
+            $isGlitter = ($normalizedSigma > 0.035);
+
             // Scale Down (50%)
             $this->texture->resizeImage($cropW * 0.5, $cropH * 0.5, Imagick::FILTER_LANCZOS, 1);
 
@@ -72,21 +91,36 @@ class TexturedImage
             // Calculate perceived brightness (0.0 to 1.0)
             $brightness = (($color['r'] * 0.299) + ($color['g'] * 0.587) + ($color['b'] * 0.114)) / 255;
 
-            // Calculate Saturation (Vibrancy)
-            // 0.0 (Grey/White) to 1.0 (Pure Color)
-            $max = max($color['r'], $color['g'], $color['b']);
-            $min = min($color['r'], $color['g'], $color['b']);
-            $chroma = $max - $min;
-            $saturation = ($max == 0) ? 0 : ($chroma / $max);
+            // // Calculate Saturation (Vibrancy)
+            // // 0.0 (Grey/White) to 1.0 (Pure Color)
+            // $max = max($color['r'], $color['g'], $color['b']);
+            // $min = min($color['r'], $color['g'], $color['b']);
+            // $chroma = $max - $min;
+            // $saturation = ($max == 0) ? 0 : ($chroma / $max);
+            //
+            // $isVibrant = ($saturation > 0.15 || $brightness < 0.2);
+            //
+            // if ($isVibrant) {
+            //     // glitter mode
+            //     $this->texture->modulateImage(100, 105, 100);
+            // } else {
+            //     // white / cream
+            //     $target = ($brightness > 0.8) ? 82 : 92;
+            //     $this->texture->modulateImage(100, 100, $target);
+            // }
 
-            $isVibrant = ($saturation > 0.15 || $brightness < 0.2);
-
-            if ($isVibrant) {
-                // glitter mode
-                $this->texture->modulateImage(100, 105, 100);
+            if ($isGlitter) {
+                // GLITTER MODE (Includes Pastel Shimmers):
+                // Do NOT darken. Darkening kills the "champagne/lilac" tones.
+                // We keep it at 100% brightness.
+                // We removed the saturation boost to keep the hue faithful.
+                $this->texture->modulateImage(100, 100, 100);
             } else {
-                // white / cream
-                $target = ($brightness > 0.8) ? 82 : 92;
+                // CREAM/PAINT MODE:
+                // Only darken if it is distinctively bright (White/Pale Grey Paint).
+                // If it's a dark cream (Red/Blue), keep it mostly bright (96%).
+                // If it's bright white (>0.8), darken to 82% to show highlights.
+                $target = ($brightness > 0.8) ? 82 : 96;
                 $this->texture->modulateImage(100, 100, $target);
             }
 
@@ -95,7 +129,8 @@ class TexturedImage
             $shadowLayer = clone $this->mask;
             $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_DEACTIVATE);
 
-            if ($isVibrant)
+            // if ($isVibrant)
+            if ($isGlitter)
             {
                 $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
                 $shadowLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.4, Imagick::CHANNEL_ALPHA);
