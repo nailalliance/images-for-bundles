@@ -33,6 +33,21 @@ class TexturedImage
     public function draw(): self
     {
         try {
+            // --- Analyze the "Soul" of the Color (The Anchor) ---
+            // We capture the true average color of the swatch BEFORE we do anything else.
+            $stats = clone $this->texture;
+            $stats->scaleImage(1, 1);
+            $anchorPixel = $stats->getImagePixelColor(0, 0);
+            $anchorColor = $anchorPixel->getColor(); // ['r'=>..., 'g'=>..., 'b'=>...]
+            $stats->clear();
+
+            // Calculate Brightness/Saturation for logic decisions
+            $r = $anchorColor['r']; $g = $anchorColor['g']; $b = $anchorColor['b'];
+            $brightness = (($r * 0.299) + ($g * 0.587) + ($b * 0.114)) / 255;
+            $max = max($r, $g, $b);
+            $min = min($r, $g, $b);
+            $saturation = ($max == 0) ? 0 : ($max - $min) / $max;
+
             // --- Step 1: Texture Tiling ---
             $geo = $this->texture->getImageGeometry();
             $w = $geo['width'];
@@ -82,14 +97,14 @@ class TexturedImage
             // $this->texture->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
             // --- Step 2: Adaptive Base Darkening (NEW) ---
 
-            // 1. Analyze the brightness of the swatch
-            $stats = clone $this->texture;
-            $stats->scaleImage(1, 1); // Shrink to 1px to get average color
-            $pixel = $stats->getImagePixelColor(0,0);
-            $color = $pixel->getColor();
-            $stats->clear();
-            // Calculate perceived brightness (0.0 to 1.0)
-            $brightness = (($color['r'] * 0.299) + ($color['g'] * 0.587) + ($color['b'] * 0.114)) / 255;
+            // // 1. Analyze the brightness of the swatch
+            // $stats = clone $this->texture;
+            // $stats->scaleImage(1, 1); // Shrink to 1px to get average color
+            // $pixel = $stats->getImagePixelColor(0,0);
+            // $color = $pixel->getColor();
+            // $stats->clear();
+            // // Calculate perceived brightness (0.0 to 1.0)
+            // $brightness = (($color['r'] * 0.299) + ($color['g'] * 0.587) + ($color['b'] * 0.114)) / 255;
 
             // // Calculate Saturation (Vibrancy)
             // // 0.0 (Grey/White) to 1.0 (Pure Color)
@@ -114,7 +129,7 @@ class TexturedImage
                 // Do NOT darken. Darkening kills the "champagne/lilac" tones.
                 // We keep it at 100% brightness.
                 // We removed the saturation boost to keep the hue faithful.
-                $this->texture->modulateImage(100, 100, 100);
+                $this->texture->modulateImage(100, 105, 100);
             } else {
                 // CREAM/PAINT MODE:
                 // Only darken if it is distinctively bright (White/Pale Grey Paint).
@@ -126,6 +141,26 @@ class TexturedImage
 
             $this->texture->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
 
+            // --- THE COLOR ANCHOR ---
+            // We overlay the original swatch color to prevent the shadows from shifting the hue.
+
+            // Only apply if it's NOT a dark color (Dark colors don't shift as much)
+            if ($brightness > 0.3) {
+                $anchorLayer = new Imagick();
+                $anchorLayer->newImage($maskW, $maskH, $anchorPixel);
+                $anchorLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
+
+                // Use OVERLAY blending.
+                // This boosts saturation and forces the hue back to the original swatch.
+                // 30% Opacity is usually the sweet spot.
+                $anchorLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.30, Imagick::CHANNEL_ALPHA);
+
+                $this->texture->compositeImage($anchorLayer, Imagick::COMPOSITE_OVERLAY, 0, 0);
+                $anchorLayer->clear();
+            }
+
+            // --- Shadows ---
+
             $shadowLayer = clone $this->mask;
             $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_DEACTIVATE);
 
@@ -133,7 +168,7 @@ class TexturedImage
             if ($isGlitter)
             {
                 $shadowLayer->setImageAlphaChannel(Imagick::ALPHACHANNEL_SET);
-                $shadowLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.4, Imagick::CHANNEL_ALPHA);
+                $shadowLayer->evaluateImage(Imagick::EVALUATE_MULTIPLY, 0.35, Imagick::CHANNEL_ALPHA);
 
                 $this->texture->compositeImage($shadowLayer, Imagick::COMPOSITE_HARDLIGHT, 0, 0);
             } else {
